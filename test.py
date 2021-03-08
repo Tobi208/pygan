@@ -1,16 +1,14 @@
 import unittest
 # from algorithms.lca_original import *
 from algorithms.lca import *
-from graph.graph import *
-from graph.node import Node
-from graph.edge import Edge
+from datastructure.directed_graph import *
 
 
 def generate_graph(height):
     num_nodes = 2 ** (height + 1) - 1
-    g = Graph()
-    g.nodes = [Node(i) for i in range(num_nodes)]
-    edges = [[Edge(i * 2, g.nodes[i], g.nodes[i * 2 + 1]), Edge(i * 2 + 1, g.nodes[i], g.nodes[i * 2 + 2])]
+    g = DirectedGraph()
+    g.nodes = [DirectedNode(i) for i in range(num_nodes)]
+    edges = [[DirectedEdge(g.nodes[i], g.nodes[i * 2 + 1]), DirectedEdge(g.nodes[i], g.nodes[i * 2 + 2])]
              for i in range(2 ** height - 1)]
     g.edges = [item for sublist in edges for item in sublist]
     for e in g.edges:
