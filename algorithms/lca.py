@@ -76,3 +76,31 @@ def get_common_prefix(addresses, ignore_ancestors=False):
     # if ancestors are to be ignored and all addresses are ancestors of reference
     # return reference
     return reference
+
+
+# def get_common_prefix_alt(addresses, ignore_ancestors=False):
+#
+#     import itertools
+#
+#     addresses = [address for address in addresses if address is not None]
+#
+#     if len(addresses) == 0:
+#         return ()
+#     elif len(addresses) == 1:
+#         return addresses[0]
+#
+#     if ignore_ancestors:
+#         addresses_zipped = itertools.zip_longest(*addresses)
+#         for i, ps in enumerate(addresses_zipped):
+#             non_none = [j for j in range(len(ps)) if ps[j] is not None]
+#             if len(non_none) == 1:
+#                 return addresses[non_none[0]]
+#             if any(map(lambda p: p != ps[non_none[0]], [ps[j] for j in non_none])):
+#                 return addresses[non_none[0]][:1]
+#     else:
+#         enum = enumerate(zip(*addresses))
+#         for i, ps in enum:
+#             if any(map(lambda p: p != ps[0], ps)):
+#                 return addresses[0][:i]
+#         return addresses[0][:len(list(enum)) + 1]
+#     return ()
