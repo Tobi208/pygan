@@ -1,4 +1,9 @@
-def compute_addresses(tree, id2address, address2id):
+from typing import List, Tuple, Dict
+
+from datastructure.directed_graph import DirectedGraph, DirectedNode
+
+
+def compute_addresses(tree: DirectedGraph, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):
     """
     Computes node addresses used to compute LCA
 
@@ -11,7 +16,7 @@ def compute_addresses(tree, id2address, address2id):
         build_id2address_rec(root, (), id2address, address2id)
 
 
-def build_id2address_rec(v, path, id2address, address2id):
+def build_id2address_rec(v: DirectedNode, path: Tuple, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):
     """
     Computes the id to address mapping and vice versa
 
@@ -20,17 +25,13 @@ def build_id2address_rec(v, path, id2address, address2id):
     :param id2address: map of ids to addresses
     :param address2id: map of addresses to ids
     """
-
-    # Java Character.MAX_VALUE = 65535 / Python int max value ~ 2147483647
-    # -> use hashable int tuples instead of strings for addresses
-
     id2address[v.node_id] = path
     address2id[path] = v.node_id
     for i, e in enumerate(v.out_edges):
         build_id2address_rec(e.target, path + (i,), id2address, address2id)
 
 
-def get_common_prefix(addresses, ignore_ancestors=False):
+def get_common_prefix(addresses: List[Tuple], ignore_ancestors: bool = False) -> Tuple:
     """
     Compute common prefix of a list of addresses
 
@@ -76,7 +77,6 @@ def get_common_prefix(addresses, ignore_ancestors=False):
     # if ancestors are to be ignored and all addresses are ancestors of reference
     # return reference
     return reference
-
 
 # def get_common_prefix_alt(addresses, ignore_ancestors=False):
 #
