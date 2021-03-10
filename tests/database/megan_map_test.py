@@ -16,13 +16,6 @@ for accession in accessions:
 
 class MeganMapTests(unittest.TestCase):
 
-    def test_inquire(self):
-        con = sqlite3.connect('../../megan-map-Jan2021.db')
-        cur = con.cursor()
-        for acc, taxid in accessions2taxonids.items():
-            self.assertEqual(m.inquire(cur, acc), taxid)
-        con.close()
-
     def test_map_accessions(self):
         con = sqlite3.connect('../../megan-map-Jan2021.db')
         cur = con.cursor()

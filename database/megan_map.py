@@ -35,19 +35,8 @@ def map_accessions(cursor: sqlite3.Cursor, accessions: Iterable[str]) -> Dict[st
     :param accessions: collection of accessions to be mapped
     :return: dictionary of accessions to taxonomy ids
     """
-    return {accession: inquire(cursor, accession) for accession in accessions}
-
-
-def inquire(cursor: sqlite3.Cursor, accession: str) -> int:
-    """
-    Send a query to megan_map.db
-
-    :param cursor: sqlite3 cursor to megan_map.db
-    :param accession: accession to be queried
-    :return: corresponding taxonomy id
-    """
-    cursor.execute(f'select Taxonomy from mappings where Accession=\'{accession}\'')
-    return cursor.fetchone()[0]
+    cursor.execute(f'select Accession, Taxonomy from mappings where Accession in {tuple(accessions)}')
+    return {a: t for a, t in cursor.fetchall()}
 
 
 def disconnect(connection: sqlite3.Connection):
