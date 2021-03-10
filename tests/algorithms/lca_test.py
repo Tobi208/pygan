@@ -22,7 +22,7 @@ g = generate_graph(4)
 n = g.nodes
 
 
-class PyganTests(unittest.TestCase):
+class LCATests(unittest.TestCase):
 
     def test_compute_addresses(self):
 
