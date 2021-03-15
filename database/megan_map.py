@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from typing import Iterable, Dict
 
 
@@ -24,7 +25,13 @@ def connect(database_path: str) -> sqlite3.Connection:
     :param database_path: path of megan_map.db
     :return: sqlite3 connection to megan_map.db
     """
-    return sqlite3.connect(database_path)
+    if not os.path.isfile(database_path):
+        raise FileNotFoundError('Can not connect to ' + database_path)
+    connection = sqlite3.connect(database_path)
+    cursor = connection.cursor()
+    # raises sqlite3.OperationalError if Accession, Taxonomy or mappings does not exist
+    cursor.execute('select Accession, Taxanomy from mappings limit 1')
+    return connection
 
 
 def map_accessions(cursor: sqlite3.Cursor, accessions: Iterable[str]) -> Dict[str, int]:
