@@ -7,12 +7,12 @@ import database.megan_map as m
 
 connection = sqlite3.connect('../../megan-map-Jan2021.db')
 cursor = connection.cursor()
-cursor.execute('select Accession from mappings limit 2000')
-accessions = [x[0] for x in cursor.fetchall()]
-accessions2taxonids = {}
-for accession in accessions:
-    cursor.execute(f'select Taxonomy from mappings where Accession=\'{accession}\'')
-    accessions2taxonids[accession] = cursor.fetchone()[0]
+
+cursor.execute('select Accession,Taxonomy from mappings where Taxonomy is not null limit 2000')
+accessions2taxonids = {a: t for a, t in cursor.fetchall()}
+
+cursor.execute('select Accession, GTDB from mappings where GTDB is not null limit 20')
+accessions2gtdbids = {a: g for a, g in cursor.fetchall()}
 
 
 class MeganMapTests(unittest.TestCase):
@@ -36,6 +36,10 @@ class MeganMapTests(unittest.TestCase):
         cur = con.cursor()
         accs = accessions2taxonids.keys()
         self.assertDictEqual(m.map_accessions(cur, accs), accessions2taxonids)
+        accs = accessions2gtdbids.keys()
+        self.assertDictEqual(m.map_accessions(cur, accs, key='GTDB'), accessions2gtdbids)
+        with self.assertRaises(sqlite3.OperationalError):
+            m.map_accessions(cur, accs, key='not a key')
         con.close()
 
     def test_get_accessions2taxonids(self):
@@ -43,6 +47,11 @@ class MeganMapTests(unittest.TestCase):
         cur = con.cursor()
         accs = accessions2taxonids.keys()
         self.assertDictEqual(m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs), accessions2taxonids)
+        accs = accessions2gtdbids.keys()
+        self.assertDictEqual(m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs, key='GTDB'),
+                             accessions2gtdbids)
+        with self.assertRaises(sqlite3.OperationalError):
+            m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs, key='not a key')
         con.close()
 
 
