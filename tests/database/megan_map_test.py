@@ -54,6 +54,15 @@ class MeganMapTests(unittest.TestCase):
             m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs, key='not a key')
         con.close()
 
+    def test_real_accessions(self):
+
+        accessions = ['EXZ85837', 'WP_065538752', 'MBE5744624']
+        a2id = m.get_accessions2taxonids('../../megan-map-Jan2021.db', accessions)
+        self.assertDictEqual(a2id, {
+            'EXZ85837': 1339273,
+            'WP_065538752': 1796613
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
