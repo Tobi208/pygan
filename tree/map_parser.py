@@ -27,8 +27,8 @@ def parse(lines: List[List[str]], tree: PhyloTree):
     """
     Fill tree nodes with names and ranks for corresponding tax_ids
 
-    :param lines: list of [tax_id, name]
-    :param tree: phylo tree to be filled with names
+    :param lines: list of [tax_id, name, ..., rank, ...]
+    :param tree: phylo tree to be filled with names and ranks
     """
     nodes = tree.nodes
     taxon = 0
