@@ -20,18 +20,23 @@ def readlines(file: str) -> List[List[str]]:
     :return: list of first two tab separated entries per line
     """
     with open(file, 'r') as f:
-        return [line.split('\t')[:2] for line in f.readlines()]
+        return [line.split('\t') for line in f.read().splitlines()]
 
 
 def parse(lines: List[List[str]], tree: PhyloTree):
     """
-    Fill tree nodes with names for corresponding tax_ids
+    Fill tree nodes with names and ranks for corresponding tax_ids
 
     :param lines: list of [tax_id, name]
     :param tree: phylo tree to be filled with names
     """
     nodes = tree.nodes
+    taxon = 0
+    name = 1
+    rank = 3
 
     for line in lines:
-        if line[0] in nodes:
-            nodes[line[0]].name = line[1]
+        if line[taxon] in nodes:
+            node = nodes[line[taxon]]
+            node.name = line[name]
+            node.rank = line[rank]
