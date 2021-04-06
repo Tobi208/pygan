@@ -2,6 +2,23 @@ from typing import List
 from tree.phylo_tree import PhyloTree
 
 
+# megan rank ids -> scientific names map
+ranks = {
+    '0': 'unspecified',
+    '1': 'kingdom',
+    '2': 'phylum',
+    '3': 'class',
+    '4': 'order',
+    '5': 'family',
+    '90': 'varietas',
+    '98': 'genus',
+    '99': 'species group',
+    '100': 'species',
+    '101': 'subspecies',
+    '127': 'domain'
+}
+
+
 def map_names(file: str, tree: PhyloTree):
     """
     Read lines of file, extract tax_id to name mapping and apply it to tree
@@ -39,4 +56,8 @@ def parse(lines: List[List[str]], tree: PhyloTree):
         if line[taxon] in nodes:
             node = nodes[line[taxon]]
             node.name = line[name]
-            node.rank = line[rank]
+            rank_id = line[rank]
+            if rank_id in ranks:
+                node.rank = ranks[rank_id]
+            else:
+                node.rank = ranks['0']

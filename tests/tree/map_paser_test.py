@@ -27,7 +27,7 @@ class MapParserTest(unittest.TestCase):
         for line in lines:
             node = tree.nodes[line[0]]
             self.assertEqual(node.name, line[1])
-            self.assertEqual(node.rank, line[3])
+            self.assertEqual(node.rank, ranks[line[3]])
 
     def test_map_names(self):
 
@@ -36,6 +36,7 @@ class MapParserTest(unittest.TestCase):
         map_names('../../resources/gtdb.map', tree)
         for n in tree.nodes.values():
             self.assertIsNotNone(n.name)
+            self.assertIsNotNone(n.rank)
 
 
 if __name__ == '__main__':
