@@ -1,5 +1,5 @@
 from typing import List
-from tree.phylo_tree import PhyloTree
+from pygan.tree.phylo_tree import PhyloTree
 
 
 # megan rank ids -> scientific names map

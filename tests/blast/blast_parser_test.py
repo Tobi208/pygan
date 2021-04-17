@@ -1,6 +1,7 @@
 import unittest
 import os
-from blast.blast_parser import *
+
+from pygan.blast.blast_parser import *
 
 
 class BlastParserTest(unittest.TestCase):

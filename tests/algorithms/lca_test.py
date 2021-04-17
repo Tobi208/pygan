@@ -1,7 +1,5 @@
 import unittest
 # from algorithms.lca_original import *
-from algorithms.lca import *
-from datastructure.directed_graph import *
 
 
 def generate_graph(height):

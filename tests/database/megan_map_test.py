@@ -2,10 +2,10 @@ import unittest
 import sqlite3
 import os
 
-import database.megan_map as m
+import pygan.database.megan_map as m
 
 
-connection = sqlite3.connect('../../megan-map-Jan2021.db')
+connection = sqlite3.connect('../../resources/megan-map-Jan2021.db')
 cursor = connection.cursor()
 
 cursor.execute('select Accession,Taxonomy from mappings where Taxonomy is not null limit 2000')
@@ -32,7 +32,7 @@ class MeganMapTests(unittest.TestCase):
         os.remove('any-other-map.db')
 
     def test_map_accessions(self):
-        con = sqlite3.connect('../../megan-map-Jan2021.db')
+        con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
         cur = con.cursor()
         accs = accessions2taxonids.keys()
         self.assertDictEqual(m.map_accessions(cur, accs), accessions2taxonids)
@@ -43,21 +43,21 @@ class MeganMapTests(unittest.TestCase):
         con.close()
 
     def test_get_accessions2taxonids(self):
-        con = sqlite3.connect('../../megan-map-Jan2021.db')
+        con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
         cur = con.cursor()
         accs = accessions2taxonids.keys()
-        self.assertDictEqual(m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs), accessions2taxonids)
+        self.assertDictEqual(m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs), accessions2taxonids)
         accs = accessions2gtdbids.keys()
-        self.assertDictEqual(m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs, key='GTDB'),
+        self.assertDictEqual(m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs, key='GTDB'),
                              accessions2gtdbids)
         with self.assertRaises(sqlite3.OperationalError):
-            m.get_accessions2taxonids('../../megan-map-Jan2021.db', accs, key='not a key')
+            m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs, key='not a key')
         con.close()
 
     def test_real_accessions(self):
 
         accessions = ['EXZ85837', 'WP_065538752', 'MBE5744624']
-        a2id = m.get_accessions2taxonids('../../megan-map-Jan2021.db', accessions)
+        a2id = m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accessions)
         self.assertDictEqual(a2id, {
             'EXZ85837': 1339273,
             'WP_065538752': 1796613

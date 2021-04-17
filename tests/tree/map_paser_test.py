@@ -1,7 +1,7 @@
 import unittest
 import os
-from tree.map_parser import *
-from tree.newick_parser import parse as nwk_parse, get_phylo_tree
+from pygan.tree.map_parser import *
+from pygan.tree.newick_parser import parse as nwk_parse, get_phylo_tree
 
 
 class MapParserTest(unittest.TestCase):

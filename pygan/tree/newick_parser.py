@@ -1,4 +1,4 @@
-from tree.phylo_tree import PhyloTree, PhyloNode
+from pygan.tree.phylo_tree import PhyloTree, PhyloNode
 
 
 def get_phylo_tree(file: str) -> PhyloTree:

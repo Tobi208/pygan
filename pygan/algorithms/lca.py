@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict
 
-from datastructure.directed_graph import DirectedGraph, DirectedNode
+from pygan.datastructure.directed_graph import DirectedGraph, DirectedNode
 
 
 def compute_addresses(tree: DirectedGraph, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):

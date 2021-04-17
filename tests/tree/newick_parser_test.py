@@ -1,6 +1,6 @@
 import unittest
 
-from tree.newick_parser import *
+from pygan.tree.newick_parser import *
 
 
 class NewickParserTest(unittest.TestCase):
