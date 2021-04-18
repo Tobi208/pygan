@@ -34,27 +34,29 @@ class MeganMapTests(unittest.TestCase):
     def test_map_accessions(self):
         con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
         cur = con.cursor()
-        accs = accessions2taxonids.keys()
-        self.assertDictEqual(m.map_accessions(cur, accs), accessions2taxonids)
-        accs = accessions2gtdbids.keys()
-        self.assertDictEqual(m.map_accessions(cur, accs, key='GTDB'), accessions2gtdbids)
+        accs = list(accessions2taxonids.keys())
+        self.assertDictEqual(m.map_accessions2ids(cur, accs), accessions2taxonids)
+        accs = list(accessions2gtdbids.keys())
+        self.assertDictEqual(m.map_accessions2ids(cur, accs, key='GTDB'), accessions2gtdbids)
         with self.assertRaises(sqlite3.OperationalError):
-            m.map_accessions(cur, accs, key='not a key')
+            m.map_accessions2ids(cur, accs, key='not a key')
         con.close()
 
     def test_get_accessions2taxonids(self):
-        con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
-        cur = con.cursor()
-        accs = accessions2taxonids.keys()
-        self.assertDictEqual(m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs), accessions2taxonids)
-        accs = accessions2gtdbids.keys()
+        accs = list(accessions2taxonids.keys())
+        self.assertDictEqual(m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs),
+                             accessions2taxonids)
+        accs = list(accessions2gtdbids.keys())
         self.assertDictEqual(m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs, key='GTDB'),
                              accessions2gtdbids)
         with self.assertRaises(sqlite3.OperationalError):
             m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accs, key='not a key')
-        con.close()
 
     def test_real_accessions(self):
+
+        accessions = ['EXZ85837']
+        a2id = m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accessions)
+        self.assertDictEqual(a2id, {'EXZ85837': 1339273})
 
         accessions = ['EXZ85837', 'WP_065538752', 'MBE5744624']
         a2id = m.get_accessions2taxonids('../../resources/megan-map-Jan2021.db', accessions)
@@ -62,6 +64,23 @@ class MeganMapTests(unittest.TestCase):
             'EXZ85837': 1339273,
             'WP_065538752': 1796613
         })
+
+    def test_fetch_ids(self):
+
+        con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
+        cur = con.cursor()
+
+        accessions = ['EXZ85837']
+        ids = m.fetch_ids(cur, accessions)
+        self.assertListEqual(ids, [1339273])
+
+        accessions = ['EXZ85837', 'WP_065538752']
+        ids = m.fetch_ids(cur, accessions)
+        self.assertListEqual(ids, [1339273, 1796613])
+
+        accessions = ['EXZ85837', 'WP_065538752', 'MBE5744624']
+        ids = m.fetch_ids(cur, accessions)
+        self.assertListEqual(ids, [1339273, 1796613])
 
 
 if __name__ == '__main__':

@@ -1,9 +1,25 @@
 import sqlite3
 import os
-from typing import Iterable, Dict
+from typing import Dict, List
 
 
-def get_accessions2taxonids(database_path: str, accessions: Iterable[str], key: str = 'Taxonomy') -> Dict[str, int]:
+def fetch_all_taxonids(database_path: str, all_accessions: List[List[str]], key: str = 'Taxonomy') -> List[List[int]]:
+    """
+    Connect to megan_map.db and create a list of taxonomy ids per read
+
+    :param database_path: path of megan_map.db
+    :param all_accessions: collection of accessions per read to be mapped
+    :param key: What the accession should be mapped to. Taxonomy by default.
+    :return: list of taxonomy ids per read
+    """
+    connection = connect(database_path)
+    cursor = connection.cursor()
+    all_taxonids = [fetch_ids(cursor, accessions, key) for accessions in all_accessions]
+    disconnect(connection)
+    return all_taxonids
+
+
+def get_accessions2taxonids(database_path: str, accessions: List[str], key: str = 'Taxonomy') -> Dict[str, int]:
     """
     Connect to megan_map.db and create a dictionary of accessions to taxonomy ids
 
@@ -14,7 +30,7 @@ def get_accessions2taxonids(database_path: str, accessions: Iterable[str], key: 
     """
     connection = connect(database_path)
     cursor = connection.cursor()
-    accessions2taxonids = map_accessions(cursor, accessions, key)
+    accessions2taxonids = map_accessions2ids(cursor, accessions, key)
     disconnect(connection)
     return accessions2taxonids
 
@@ -35,7 +51,7 @@ def connect(database_path: str) -> sqlite3.Connection:
     return connection
 
 
-def map_accessions(cursor: sqlite3.Cursor, accessions: Iterable[str], key: str = 'Taxonomy') -> Dict[str, int]:
+def map_accessions2ids(cursor: sqlite3.Cursor, accessions: List[str], key: str = 'Taxonomy') -> Dict[str, int]:
     """
     Create a dictionary of accessions to taxonomy ids
 
@@ -44,8 +60,27 @@ def map_accessions(cursor: sqlite3.Cursor, accessions: Iterable[str], key: str =
     :param key: What the accession should be mapped to. Taxonomy by default.
     :return: dictionary of accessions to taxonomy ids
     """
-    cursor.execute(f'select Accession, {key} from mappings where Accession in {tuple(accessions)}')
+    if len(accessions) == 1:
+        cursor.execute(f'select Accession, {key} from mappings where Accession == \'{accessions[0]}\'')
+    else:
+        cursor.execute(f'select Accession, {key} from mappings where Accession in {tuple(accessions)}')
     return {a: t for a, t in cursor.fetchall()}
+
+
+def fetch_ids(cursor: sqlite3.Cursor, accessions: List[str], key: str = 'Taxonomy') -> List[int]:
+    """
+    Create a list of taxonomy ids from accessions
+
+    :param cursor: sqlite3 cursor to megan_map.db
+    :param accessions: collection of accessions to be mapped
+    :param key: What the accession should be mapped to. Taxonomy by default.
+    :return: list of taxonomy ids
+    """
+    if len(accessions) == 1:
+        cursor.execute(f'select {key} from mappings where Accession == \'{accessions[0]}\'')
+    else:
+        cursor.execute(f'select {key} from mappings where Accession in {tuple(accessions)}')
+    return [t[0] for t in cursor.fetchall()]
 
 
 def disconnect(connection: sqlite3.Connection):
