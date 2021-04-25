@@ -1,9 +1,9 @@
 from typing import List, Tuple, Dict
 
-from pygan.datastructure.directed_graph import DirectedGraph, DirectedNode
+from pygan.tree.phylo_tree import PhyloTree, PhyloNode
 
 
-def compute_addresses(tree: DirectedGraph, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):
+def compute_addresses(tree: PhyloTree, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):
     """
     Computes node addresses used to compute LCA
 
@@ -16,7 +16,7 @@ def compute_addresses(tree: DirectedGraph, id2address: Dict[int, Tuple], address
         build_id2address_rec(root, (), id2address, address2id)
 
 
-def build_id2address_rec(v: DirectedNode, path: Tuple, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):
+def build_id2address_rec(v: PhyloNode, path: Tuple, id2address: Dict[int, Tuple], address2id: Dict[Tuple, int]):
     """
     Computes the id to address mapping and vice versa
 
@@ -25,10 +25,10 @@ def build_id2address_rec(v: DirectedNode, path: Tuple, id2address: Dict[int, Tup
     :param id2address: map of ids to addresses
     :param address2id: map of addresses to ids
     """
-    id2address[v.node_id] = path
-    address2id[path] = v.node_id
-    for i, e in enumerate(v.out_edges):
-        build_id2address_rec(e.target, path + (i,), id2address, address2id)
+    id2address[v.tax_id] = path
+    address2id[path] = v.tax_id
+    for i, c in enumerate(v.children):
+        build_id2address_rec(c, path + (i,), id2address, address2id)
 
 
 def get_common_prefix(addresses: List[Tuple], ignore_ancestors: bool = False) -> Tuple:
@@ -77,30 +77,3 @@ def get_common_prefix(addresses: List[Tuple], ignore_ancestors: bool = False) ->
     # if ancestors are to be ignored and all addresses are ancestors of reference
     # return reference
     return reference
-
-# def get_common_prefix_alt(addresses, ignore_ancestors=False):
-#
-#     import itertools
-#
-#     addresses = [address for address in addresses if address is not None]
-#
-#     if len(addresses) == 0:
-#         return ()
-#     elif len(addresses) == 1:
-#         return addresses[0]
-#
-#     if ignore_ancestors:
-#         addresses_zipped = itertools.zip_longest(*addresses)
-#         for i, ps in enumerate(addresses_zipped):
-#             non_none = [j for j in range(len(ps)) if ps[j] is not None]
-#             if len(non_none) == 1:
-#                 return addresses[non_none[0]]
-#             if any(map(lambda p: p != ps[non_none[0]], [ps[j] for j in non_none])):
-#                 return addresses[non_none[0]][:1]
-#     else:
-#         enum = enumerate(zip(*addresses))
-#         for i, ps in enum:
-#             if any(map(lambda p: p != ps[0], ps)):
-#                 return addresses[0][:i]
-#         return addresses[0][:len(list(enum)) + 1]
-#     return ()
