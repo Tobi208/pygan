@@ -7,11 +7,11 @@ from pygan.algorithms.lca import compute_addresses, get_common_prefix
 from pygan.algorithms.min_sup_filter import apply_min_sup_filter
 
 
-def lca_analysis(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
-                 blast_format: str, top_score_percent: float, db_segment_size: int, db_key: str,
-                 ignore_ancestors: bool, min_support: int, out_file: str):
+def execute(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
+            blast_format: str, top_score_percent: float, db_segment_size: int, db_key: str,
+            ignore_ancestors: bool, min_support: int, out_file: str):
     """
-    Conducts an LCA anylsis
+    Conducts an LCA analysis
 
     LCA analysis takes user input from a blast file,
     maps its accessions to taxon ids via the Megan Map Database,
@@ -87,14 +87,3 @@ def lca_analysis(tre_file: str, map_file: str, megan_map_file: str, blast_file: 
 
 def timer(t):
     return str(round(time() - t, 2))
-
-
-if __name__ == '__main__':
-    lca_analysis(tre_file='../resources/ncbi.tre',
-                 map_file='../resources/ncbi.map',
-                 megan_map_file='../resources/megan-map-Jan2021.db',
-                 blast_file='../resources/Alice01-1mio-Jan-2021.txt',
-                 blast_format='tab', top_score_percent=0.1,
-                 db_segment_size=50000, db_key='Taxonomy',
-                 ignore_ancestors=False, min_support=100,
-                 out_file='../lca_analysis.txt')
