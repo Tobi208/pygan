@@ -21,8 +21,7 @@ class MeganMapTests(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             m.connect('not-megan-map.db')
         con = sqlite3.connect('any-other-map.db')
-        cur = con.cursor()
-        cur.execute("""create table if not exists mappings (
+        con.execute("""create table if not exists mappings (
             Accession text primary key,
             nottaxonomy text not null        
         );""")
@@ -33,13 +32,12 @@ class MeganMapTests(unittest.TestCase):
 
     def test_map_accessions(self):
         con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
-        cur = con.cursor()
         accs = list(accessions2taxonids.keys())
-        self.assertDictEqual(m.map_accessions2ids(cur, accs), accessions2taxonids)
+        self.assertDictEqual(m.map_accessions2ids(con, accs), accessions2taxonids)
         accs = list(accessions2gtdbids.keys())
-        self.assertDictEqual(m.map_accessions2ids(cur, accs, key='GTDB'), accessions2gtdbids)
+        self.assertDictEqual(m.map_accessions2ids(con, accs, key='GTDB'), accessions2gtdbids)
         with self.assertRaises(sqlite3.OperationalError):
-            m.map_accessions2ids(cur, accs, key='not a key')
+            m.map_accessions2ids(con, accs, key='not a key')
         con.close()
 
     def test_get_accessions2taxonids(self):
@@ -68,18 +66,17 @@ class MeganMapTests(unittest.TestCase):
     def test_fetch_ids(self):
 
         con = sqlite3.connect('../../resources/megan-map-Jan2021.db')
-        cur = con.cursor()
 
         accessions = ['EXZ85837']
-        ids = m.fetch_ids(cur, accessions)
+        ids = m.fetch_ids(con, accessions)
         self.assertListEqual(ids, [1339273])
 
         accessions = ['EXZ85837', 'WP_065538752']
-        ids = m.fetch_ids(cur, accessions)
+        ids = m.fetch_ids(con, accessions)
         self.assertListEqual(ids, [1339273, 1796613])
 
         accessions = ['EXZ85837', 'WP_065538752', 'MBE5744624']
-        ids = m.fetch_ids(cur, accessions)
+        ids = m.fetch_ids(con, accessions)
         self.assertListEqual(ids, [1339273, 1796613])
 
 
