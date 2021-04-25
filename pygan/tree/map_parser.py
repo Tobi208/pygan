@@ -53,8 +53,9 @@ def parse(lines: List[List[str]], tree: PhyloTree):
     rank = 3
 
     for line in lines:
-        if line[taxon] in nodes:
-            node = nodes[line[taxon]]
+        taxon_id = int(line[taxon])
+        if taxon_id in nodes:
+            node = nodes[taxon_id]
             node.name = line[name]
             rank_id = line[rank]
             if rank_id in ranks:
