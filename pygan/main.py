@@ -2,14 +2,14 @@ from time import time
 from pygan.tree.newick_parser import get_phylo_tree
 from pygan.tree.map_parser import map_names
 from pygan.blast.blast_parser import parse as blast_parse
-from pygan.database.megan_map import fetch_all_taxonids
+from pygan.database.megan_map import get_accessions2taxonids
 from pygan.algorithms.lca import compute_addresses, get_common_prefix
 from pygan.algorithms.min_sup_filter import apply_min_sup_filter
 
 
 def lca_analysis(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
-                 blast_format: str, top_score_percent: float, ignore_ancestors: bool, min_support: int,
-                 out_file: str):
+                 blast_format: str, top_score_percent: float, db_segment_size: int, db_key: str,
+                 ignore_ancestors: bool, min_support: int, out_file: str):
 
     print('starting lca analysis')
     lca_start = time()
@@ -33,7 +33,13 @@ def lca_analysis(tre_file: str, map_file: str, megan_map_file: str, blast_file: 
     print('parsed blast in ' + timer(t))
 
     t = time()
-    all_taxonids = fetch_all_taxonids(megan_map_file, all_accessions)
+    segments = list(range(0, len(all_accessions), db_segment_size)) + [len(all_accessions)]
+    all_taxonids = []
+    for i in range(1, len(segments)):
+        grouped_accs = all_accessions[segments[i - 1]:segments[i]]
+        flattened_accs = [acc for accs in grouped_accs for acc in accs]
+        acc2id = get_accessions2taxonids(megan_map_file, flattened_accs, db_key)
+        all_taxonids += [[acc2id[acc] for acc in accs if acc in acc2id] for accs in grouped_accs]
     print('mapped #reads: ' + str(len(all_taxonids)) + ' in ' + timer(t))
 
     t = time()
@@ -68,5 +74,7 @@ if __name__ == '__main__':
                  map_file='../resources/ncbi.map',
                  megan_map_file='../resources/megan-map-Jan2021.db',
                  blast_file='../resources/Alice01-1mio-Jan-2021.txt',
-                 blast_format='tab', top_score_percent=0.1, ignore_ancestors=False, min_support=100,
+                 blast_format='tab', top_score_percent=0.1,
+                 db_segment_size=50000, db_key='Taxonomy',
+                 ignore_ancestors=False, min_support=100,
                  out_file='../lca_analysis.txt')
