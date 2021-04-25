@@ -13,8 +13,7 @@ def fetch_all_taxonids(database_path: str, all_accessions: List[List[str]], key:
     :return: list of taxonomy ids per read
     """
     connection = connect(database_path)
-    cursor = connection.cursor()
-    all_taxonids = [fetch_ids(cursor, accessions, key) for accessions in all_accessions]
+    all_taxonids = [fetch_ids(connection, accessions, key) for accessions in all_accessions]
     disconnect(connection)
     return all_taxonids
 
@@ -67,20 +66,23 @@ def map_accessions2ids(cursor: sqlite3.Cursor, accessions: List[str], key: str =
     return {a: t for a, t in cursor.fetchall()}
 
 
-def fetch_ids(cursor: sqlite3.Cursor, accessions: List[str], key: str = 'Taxonomy') -> List[int]:
+def fetch_ids(connection: sqlite3.Connection, accessions: List[str], key: str = 'Taxonomy') -> List[int]:
     """
     Create a list of taxonomy ids from accessions
 
-    :param cursor: sqlite3 cursor to megan_map.db
+    # :param cursor: sqlite3 cursor to megan_map.db
     :param accessions: collection of accessions to be mapped
     :param key: What the accession should be mapped to. Taxonomy by default.
     :return: list of taxonomy ids
     """
-    if len(accessions) == 1:
-        cursor.execute(f'select {key} from mappings where Accession == \'{accessions[0]}\'')
-    else:
-        cursor.execute(f'select {key} from mappings where Accession in {tuple(accessions)}')
-    return [t[0] for t in cursor.fetchall()]
+    # prep = f'select {key} from mappings where Accession '
+    # if len(accessions) == 1:
+    #     return [t[0] for t in connection.execute(prep + '= \'' + accessions[0] + '\'')]
+    # else:
+    #     return [t[0] for t in connection.execute(prep + 'in ' + str(tuple(accessions)))]
+
+    prep = f'select {key} from mappings where Accession in (\''
+    return [t[0] for t in connection.execute(prep + '\',\''.join(accessions) + '\')')]
 
 
 def disconnect(connection: sqlite3.Connection):

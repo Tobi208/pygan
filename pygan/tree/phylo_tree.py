@@ -1,3 +1,6 @@
+from typing import Dict, List, Optional
+
+
 class PhyloTree:
     """
     Primitve phylogenetic tree
@@ -6,8 +9,8 @@ class PhyloTree:
     """
 
     def __init__(self):
-        self.root = None
-        self.nodes = {}
+        self.root: Optional[PhyloNode] = None
+        self.nodes: Dict[int, PhyloNode] = {}
 
 
 class PhyloNode:
@@ -19,9 +22,9 @@ class PhyloNode:
     """
 
     def __init__(self):
-        self.tax_id = None
-        self.name = None
-        self.rank = None
-        self.reads = None
-        self.parent = None
-        self.children = []
+        self.tax_id: Optional[int] = None
+        self.name: Optional[str] = None
+        self.rank: Optional[str] = None
+        self.reads: int = 0
+        self.parent: Optional[PhyloNode] = None
+        self.children: List[PhyloNode] = []

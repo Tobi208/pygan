@@ -58,6 +58,7 @@ def parse(newick: str) -> PhyloTree:
                 node.parent = parent
 
             # add entry to parent and tree
+            tax_id = int(tax_id)
             node.tax_id = tax_id
             tree.nodes[tax_id] = node
             parent.children.append(node)
@@ -77,6 +78,7 @@ def parse(newick: str) -> PhyloTree:
                 node.parent = parent
 
             # add entry to parent and tree
+            tax_id = int(tax_id)
             node.tax_id = tax_id
             tree.nodes[tax_id] = node
             parent.children.append(node)
@@ -101,6 +103,7 @@ def parse(newick: str) -> PhyloTree:
             node = None
 
     # first node created, but last node concluded is root
+    tax_id = int(tax_id)
     node.tax_id = tax_id
     tree.nodes[tax_id] = node
     tree.root = node
@@ -108,7 +111,7 @@ def parse(newick: str) -> PhyloTree:
     return tree
 
 
-def to_newick(node: PhyloNode):
+def to_newick(node: PhyloNode) -> str:
     """
     Parse a phylogenetic tree back to a newick tree in format (1,2,(3,4)5)6.
     Call with root node.
@@ -119,6 +122,6 @@ def to_newick(node: PhyloNode):
     :return: newick tree in format (1,2,(3,4)5)6
     """
     if len(node.children) == 0:
-        return node.tax_id
+        return str(node.tax_id)
     else:
-        return '(' + ','.join([to_newick(child) for child in node.children]) + ')' + node.tax_id
+        return '(' + ','.join([to_newick(child) for child in node.children]) + ')' + str(node.tax_id)
