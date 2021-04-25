@@ -10,6 +10,26 @@ from pygan.algorithms.min_sup_filter import apply_min_sup_filter
 def lca_analysis(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
                  blast_format: str, top_score_percent: float, db_segment_size: int, db_key: str,
                  ignore_ancestors: bool, min_support: int, out_file: str):
+    """
+    Conducts an LCA anylsis
+
+    LCA analysis takes user input from a blast file,
+    maps its accessions to taxon ids via the Megan Map Database,
+    determines the Lowest Common Ancestor for each read and
+    maps the number of reads to a phylogenetic tree.
+
+    :param tre_file: path to file containing phyolgenetic tree
+    :param map_file: path to file containing mapping of taxonomy id to scientific name and rank
+    :param megan_map_file: path to file containing megan_map.db
+    :param blast_file: path to file containing blast data
+    :param blast_format: specific blast format (tab, xml, pairwise)
+    :param top_score_percent: percentage in [0, 1] to filter accessions by
+    :param db_segment_size: number of reads whoose accessions are to be mapped via the database in chunks
+    :param db_key: specific key to map accessions to (Taxonomy for NCBI, gtdb for GTDB)
+    :param ignore_ancestors: flag whether to ignore ancestors in the LCA algorithm
+    :param min_support: limit for the minimum support filter algorithm
+    :param out_file: path to output file of results
+    """
 
     print('starting lca analysis')
     lca_start = time()
