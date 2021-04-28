@@ -49,24 +49,24 @@ def execute(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     print('mapped names and ranks in ' + timer(t))
 
     t = time()
-    all_accessions = blast_parse(blast_file, blast_format, top_score_percent)
+    reads = blast_parse(blast_file, blast_format, top_score_percent)
     print('parsed blast in ' + timer(t))
 
     t = time()
-    segments = [*range(0, len(all_accessions), db_segment_size), len(all_accessions)]
-    all_taxonids = []
+    segments = [*range(0, len(reads), db_segment_size), len(reads)]
     for i in range(1, len(segments)):
-        grouped_accs = all_accessions[segments[i - 1]:segments[i]]
-        flattened_accs = [acc for accs in grouped_accs for acc in accs]
-        acc2id = get_accessions2taxonids(megan_map_file, flattened_accs, db_key)
-        all_taxonids += [tuple(acc2id[acc] for acc in accs if acc in acc2id) for accs in grouped_accs]
-    print('mapped #reads: ' + str(len(all_taxonids)) + ' in ' + timer(t))
+        grouped_reads = reads[segments[i - 1]:segments[i]]
+        flattened_reads = [acc for read in grouped_reads for acc in read]
+        acc2id = get_accessions2taxonids(megan_map_file, flattened_reads, db_key)
+        for read in grouped_reads:
+            read[:] = tuple(acc2id[acc] for acc in read if acc in acc2id)
+    print('mapped #reads: ' + str(len(reads)) + ' in ' + timer(t))
 
     t = time()
     nodes = tree.nodes
-    for taxonids in all_taxonids:
+    for read in reads:
         common_prefix = get_common_prefix([
-            id2address[taxonid] for taxonid in taxonids
+            id2address[taxonid] for taxonid in read
             if taxonid in id2address
         ], ignore_ancestors)
         nodes[address2id[common_prefix]].reads += 1
