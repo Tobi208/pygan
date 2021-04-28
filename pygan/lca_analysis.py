@@ -53,13 +53,13 @@ def execute(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     print('parsed blast in ' + timer(t))
 
     t = time()
-    segments = list(range(0, len(all_accessions), db_segment_size)) + [len(all_accessions)]
+    segments = [*range(0, len(all_accessions), db_segment_size), len(all_accessions)]
     all_taxonids = []
     for i in range(1, len(segments)):
         grouped_accs = all_accessions[segments[i - 1]:segments[i]]
         flattened_accs = [acc for accs in grouped_accs for acc in accs]
         acc2id = get_accessions2taxonids(megan_map_file, flattened_accs, db_key)
-        all_taxonids += [[acc2id[acc] for acc in accs if acc in acc2id] for accs in grouped_accs]
+        all_taxonids += [tuple(acc2id[acc] for acc in accs if acc in acc2id) for accs in grouped_accs]
     print('mapped #reads: ' + str(len(all_taxonids)) + ' in ' + timer(t))
 
     t = time()
