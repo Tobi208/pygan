@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from typing import Dict, List
+from typing import Dict, List, Iterable
 
 
 def connect(database_path: str) -> sqlite3.Connection:
@@ -27,7 +27,8 @@ def disconnect(connection: sqlite3.Connection):
     connection.close()
 
 
-def fetch_all_taxonids(database_path: str, all_accessions: List[List[str]], key: str = 'Taxonomy') -> List[List[int]]:
+def fetch_all_taxonids(database_path: str, all_accessions: Iterable[Iterable[str]], key: str = 'Taxonomy') \
+        -> List[List[int]]:
     """
     Connect to megan_map.db and create a list of taxonomy ids per read
 
@@ -42,7 +43,7 @@ def fetch_all_taxonids(database_path: str, all_accessions: List[List[str]], key:
     return all_taxonids
 
 
-def fetch_taxonids(database_path: str, accessions: List[str], key: str = 'Taxonomy') -> List[int]:
+def fetch_taxonids(database_path: str, accessions: Iterable[str], key: str = 'Taxonomy') -> List[int]:
     """
     Connect to megan_map.db and create a list of taxonomy ids from accessions
 
@@ -57,7 +58,7 @@ def fetch_taxonids(database_path: str, accessions: List[str], key: str = 'Taxono
     return taxonids
 
 
-def fetch_ids(connection: sqlite3.Connection, accessions: List[str], key: str = 'Taxonomy') -> List[int]:
+def fetch_ids(connection: sqlite3.Connection, accessions: Iterable[str], key: str = 'Taxonomy') -> List[int]:
     """
     Create a list of taxonomy ids from accessions
 
@@ -70,7 +71,7 @@ def fetch_ids(connection: sqlite3.Connection, accessions: List[str], key: str = 
     return [t[0] for t in connection.execute(prep + '\',\''.join(accessions) + '\')')]
 
 
-def get_accessions2taxonids(database_path: str, accessions: List[str], key: str = 'Taxonomy') -> Dict[str, int]:
+def get_accessions2taxonids(database_path: str, accessions: Iterable[str], key: str = 'Taxonomy') -> Dict[str, int]:
     """
     Connect to megan_map.db and create a dictionary of accessions to taxonomy ids
 
@@ -85,7 +86,8 @@ def get_accessions2taxonids(database_path: str, accessions: List[str], key: str 
     return accessions2taxonids
 
 
-def map_accessions2ids(connection: sqlite3.Connection, accessions: List[str], key: str = 'Taxonomy') -> Dict[str, int]:
+def map_accessions2ids(connection: sqlite3.Connection, accessions: Iterable[str], key: str = 'Taxonomy') \
+        -> Dict[str, int]:
     """
     Create a dictionary of accessions to taxonomy ids
 
