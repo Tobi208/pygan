@@ -1,4 +1,5 @@
 from time import time
+from typing import Dict
 from pygan.tree.newick_parser import get_phylo_tree
 from pygan.tree.map_parser import map_names
 from pygan.blast.blast_parser import parse as blast_parse
@@ -8,7 +9,7 @@ from pygan.algorithms.min_sup_filter import apply_min_sup_filter
 
 
 def execute(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
-            blast_format: str, top_score_percent: float, db_segment_size: int, db_key: str,
+            blast_map: Dict[str, int], top_score_percent: float, db_segment_size: int, db_key: str,
             ignore_ancestors: bool, min_support: int, out_file: str):
     """
     Conducts an LCA analysis
@@ -22,7 +23,7 @@ def execute(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     :param map_file: path to file containing mapping of taxonomy id to scientific name and rank
     :param megan_map_file: path to file containing megan_map.db
     :param blast_file: path to file containing blast data
-    :param blast_format: specific blast format (tab, xml, pairwise)
+    :param blast_map: contains a mapping of which column qseqid, sseqid and bitscore are in
     :param top_score_percent: percentage in [0, 1] to filter accessions by
     :param db_segment_size: number of reads whoose accessions are to be mapped via the database in chunks
     :param db_key: specific key to map accessions to (Taxonomy for NCBI, gtdb for GTDB)
@@ -49,7 +50,7 @@ def execute(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     print('mapped names and ranks in ' + timer(t))
 
     t = time()
-    reads = blast_parse(blast_file, blast_format, top_score_percent)
+    reads = blast_parse(blast_file, top_score_percent, blast_map)
     print('parsed blast in ' + timer(t))
 
     t = time()
