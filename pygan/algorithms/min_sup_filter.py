@@ -1,7 +1,7 @@
 from pygan.tree.phylo_tree import PhyloTree, PhyloNode
 
 
-def apply_min_sup_filter(tree: PhyloTree, min_support: int):
+def apply(tree: PhyloTree, min_support: int):
     """
     Applies the minimum support filter to a phylogenetic tree.
     Every node with a reads count lower than the specified limit donates its reads to its parent.
