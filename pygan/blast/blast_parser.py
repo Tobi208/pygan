@@ -1,10 +1,7 @@
 from typing import List, Tuple, Dict
 
-Read = List[Tuple[str, float]]
-Accessions = List[str]
 
-
-def parse(file: str, top_score_percent: float, tab_map: Dict[str, int]) -> List[Accessions]:
+def parse_filter(file: str, top_score_percent: float, tab_map: Dict[str, int]) -> Tuple[List[List[str]], List[str]]:
     """
     Read lines of file in tab format, extract reads containing accessions and bit scores.
     Filter accessions in each read by the top score percentage.
@@ -13,7 +10,7 @@ def parse(file: str, top_score_percent: float, tab_map: Dict[str, int]) -> List[
     :param file: filepath
     :param top_score_percent: percentage in [0, 1] to filter accessions by
     :param tab_map: contains a mapping of which column qseqid, sseqid and bitscore are in
-    :return: list of accessions per read filtered by top score percentage
+    :return: list of accessions per read filtered by top score percentage, list of read ids
     """
 
     qseqid = tab_map['qseqid']
@@ -21,6 +18,7 @@ def parse(file: str, top_score_percent: float, tab_map: Dict[str, int]) -> List[
     bitscore = tab_map['bitscore']
 
     reads = []
+    read_ids = []
     read = None
     read_id = None
 
@@ -37,6 +35,7 @@ def parse(file: str, top_score_percent: float, tab_map: Dict[str, int]) -> List[
             if next_id != read_id:
                 # flush last read
                 reads.append(filter_by_top_score(read, top_score_percent))
+                read_ids.append(read_id)
                 read = []
                 read_id = next_id
             # expand read
@@ -47,11 +46,12 @@ def parse(file: str, top_score_percent: float, tab_map: Dict[str, int]) -> List[
             line = f.readline()
         # flush last read
         reads.append(filter_by_top_score(read, top_score_percent))
+        read_ids.append(read_id)
 
-    return reads
+    return reads, read_ids
 
 
-def filter_by_top_score(read: Read, top_score_percent: float) -> Accessions:
+def filter_by_top_score(read: List[Tuple[str, float]], top_score_percent: float) -> List[str]:
     """
     Filter accessions in read by the top score percentage.
     An accession within the percentage of the top score stays in the read.

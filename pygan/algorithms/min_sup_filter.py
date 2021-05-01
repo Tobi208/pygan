@@ -25,6 +25,6 @@ def min_sup_dfs(node: PhyloNode, min_support: int):
         min_sup_dfs(child, min_support)
     # if a node's reads count is below the min sup limit
     # push its reads upwards
-    if 0 < node.reads < min_support and node.parent:
-        node.parent.reads += node.reads
-        node.reads = 0
+    if 0 < len(node.reads) < min_support and node.parent:
+        node.parent.reads[:] += node.reads
+        node.reads.clear()

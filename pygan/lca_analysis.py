@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List
 from pygan.tree.phylo_tree import PhyloTree
 from pygan.tree.newick_parser import get_phylo_tree
 from pygan.tree.map_parser import map_names
-from pygan.blast.blast_parser import parse as blast_parse
+from pygan.blast.blast_parser import parse_filter
 from pygan.database.megan_map import get_accessions2taxonids
 from pygan.algorithms.lca import compute_addresses, get_common_prefix
 from pygan.algorithms.min_sup_filter import apply
@@ -37,9 +37,9 @@ def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     lca_start = time()
     tree = parse_tree(tre_file, map_file)
     id2address, address2id = compute_lca_addresses(tree)
-    reads = parse_blast_filter(blast_file, top_score_percent, blast_map)
+    reads, read_ids = parse_blast_filter(blast_file, top_score_percent, blast_map)
     mapped_reads = map_accessions(reads, megan_map_file, db_segment_size, db_key)
-    map_lcas(tree, id2address, address2id, mapped_reads, ignore_ancestors)
+    map_lcas(tree, id2address, address2id, mapped_reads, read_ids, ignore_ancestors)
     apply_min_sup_filter(tree, min_support)
     write_results(tree, out_file)
     print('completed lca analysis in ' + timer(lca_start))
@@ -78,19 +78,20 @@ def compute_lca_addresses(tree: PhyloTree) -> Tuple[Dict, Dict]:
     return id2address, address2id
 
 
-def parse_blast_filter(blast_file: str, top_score_percent: float, blast_map: Dict[str, int]) -> List[List[str]]:
+def parse_blast_filter(blast_file: str, top_score_percent: float, blast_map: Dict[str, int])\
+        -> Tuple[List[List[str]], List[str]]:
     """
     Parse a blast tab file and filter the accessions by top score
 
     :param blast_file: path to file containing blast data
     :param top_score_percent: percentage in [0, 1] to filter accessions by
     :param blast_map: contains a mapping of which column qseqid, sseqid and bitscore are in
-    :return: list of accessions per read filtered by top score
+    :return: list of accessions per read filtered by top score, list of read ids
     """
     t = time()
-    reads = blast_parse(blast_file, top_score_percent, blast_map)
+    reads_n_read_ids = parse_filter(blast_file, top_score_percent, blast_map)
     print('parsed blast in ' + timer(t))
-    return reads
+    return reads_n_read_ids
 
 
 def map_accessions(reads: List[List[str]], megan_map_file: str, db_segment_size: int, db_key: str) -> List[Tuple[int]]:
@@ -116,7 +117,8 @@ def map_accessions(reads: List[List[str]], megan_map_file: str, db_segment_size:
     return mapped_reads
 
 
-def map_lcas(tree: PhyloTree, id2address: Dict, address2id: Dict, reads: List[Tuple[int]], ignore_ancestors: bool):
+def map_lcas(tree: PhyloTree, id2address: Dict, address2id: Dict,
+             reads: List[Tuple[int]], read_ids: List[str], ignore_ancestors: bool):
     """
     Computes Lowest Common Ancestors for each read and maps it to the corresponding node in the phylogenetic tree
 
@@ -124,16 +126,17 @@ def map_lcas(tree: PhyloTree, id2address: Dict, address2id: Dict, reads: List[Tu
     :param id2address: mapping of taxonomy id to its address in the tree
     :param address2id: mapping of a tree address to its taxonomy id
     :param reads: list of taxonomy ids per read
+    :param read_ids: list of read ids corresponding to reads
     :param ignore_ancestors: use longest address or shortest address as reference
     """
     t = time()
     nodes = tree.nodes
-    for read in reads:
+    for i, read in enumerate(reads):
         common_prefix = get_common_prefix([
             id2address[taxonid] for taxonid in read
             if taxonid in id2address
         ], ignore_ancestors)
-        nodes[address2id[common_prefix]].reads += 1
+        nodes[address2id[common_prefix]].reads.append(read_ids[i])
     print('computed LCAs in ' + timer(t))
 
 
@@ -157,7 +160,7 @@ def write_results(tree: PhyloTree, out_file: str):
     :param out_file: path to output file
     """
     t = time()
-    result = '\n'.join([node.name + '\t' + str(node.reads) for node in tree.nodes.values() if node.reads != 0])
+    result = '\n'.join([node.name + '\t' + str(len(node.reads)) for node in tree.nodes.values() if node.reads])
     with open(out_file, 'w') as f:
         f.write(result)
     print('exported result in: ' + timer(t))

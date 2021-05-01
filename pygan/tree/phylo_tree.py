@@ -25,6 +25,6 @@ class PhyloNode:
         self.tax_id: Optional[int] = None
         self.name: Optional[str] = None
         self.rank: Optional[str] = None
-        self.reads: int = 0
+        self.reads: List[str] = []
         self.parent: Optional[PhyloNode] = None
         self.children: List[PhyloNode] = []
