@@ -226,8 +226,12 @@ def write_results(tree: PhyloTree, out_file: str):
     :param out_file: path to output file
     """
     t = time()
-    result = '\n'.join([node.name + '\t' + str(len(node.reads) if type(node.reads == list) else node.reads)
-                        for node in tree.nodes.values() if node.reads])
+    if type(tree.root.reads) == list:
+        result = '\n'.join([node.name + '\t' + str(len(node.reads))
+                            for node in tree.nodes.values() if node.reads])
+    else:
+        result = '\n'.join([node.name + '\t' + str(node.reads)
+                            for node in tree.nodes.values() if node.reads])
     with open(out_file, 'w') as f:
         f.write(result)
     print('exported result in ' + timer(t))

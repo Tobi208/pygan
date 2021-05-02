@@ -86,7 +86,7 @@ def project_dfs_up(node: PhyloNode, rank: str, push_up: Dict[int, bool]):
     """
     # check if leaf is specified rank
     if not node.children:
-        push_up[node.tax_id] = not is_rank(node, rank)
+        push_up[node.tax_id] = not is_rank(node, rank) or not node.reads
     # traveserse dfs if not a leaf
     else:
         for child in node.children:
@@ -96,12 +96,13 @@ def project_dfs_up(node: PhyloNode, rank: str, push_up: Dict[int, bool]):
     if parent:
         # propagate reads upwards
         parent.reads += node.reads
-        # check if parent be deleting reads
+        # check if parent should be deleting reads
         # once rank is met, stop deleting reads
         if parent.tax_id in push_up:
-            push_up[parent.tax_id] = push_up[node.tax_id] and push_up[parent.tax_id]
+            push_up[parent.tax_id] = push_up[node.tax_id] and push_up[parent.tax_id]\
+                                     and not (is_rank(parent, rank) and parent.reads)
         else:
-            push_up[parent.tax_id] = push_up[node.tax_id] and not is_rank(parent, rank)
+            push_up[parent.tax_id] = push_up[node.tax_id] and not (is_rank(parent, rank) and parent.reads)
         # if node should delete reads, delete them
         if push_up[node.tax_id]:
             node.reads = 0

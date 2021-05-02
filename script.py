@@ -85,11 +85,12 @@ def project():
     project_reads_to_rank(tree, 'genus')
     # apply_min_sup_filter(tree, min_support, True)
 
-    nodes = tree.nodes.values()
+    # nodes = tree.nodes.values()
+    # for node in nodes:
+    #     if node.reads > 0:
+    #         print(node.name, node.rank, node.reads)
 
-    for node in nodes:
-        if node.reads > 0:
-            print(node.name, node.rank, node.reads)
+    write_results(tree, out_file)
 
 
 if __name__ == '__main__':
