@@ -1,20 +1,11 @@
+from math import ceil
+from typing import Dict
 from pygan.tree.phylo_tree import PhyloTree, PhyloNode
 
-major_ranks = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']
 
-ranks = {
-    'kingdom': 1,
-    'phylum': 2,
-    'class': 3,
-    'order': 4,
-    'family': 5,
-    'varietas': 90,
-    'genus': 98,
-    'species group': 99,
-    'species': 100,
-    'subspecies': 101,
-    'domain': 127,
-}
+ranks = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species group', 'species', 'subspecies',
+         'varietas', 'domain']
+major_ranks = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']
 
 
 def apply(tree: PhyloTree, min_support: int, only_major: bool = False):
@@ -67,50 +58,81 @@ def min_sup_dfs(node: PhyloNode, min_support: int):
         node.reads.clear()
 
 
-def project_to_rank(tree: PhyloTree, rank_name: str):
+def project_to_rank(tree: PhyloTree, rank: str):
     """
     Project all reads to nodes of a certain rank.
     Since reads are projected, specific read ids are discarded
     and number of reads is used instead.
-    Reads above the specified rank are projected downwards by percentage.
+    Readsare projected downwards by percentage.
 
-    :param tree: phylogenetic tree with #reads mapped to nodes
-    :param rank_name: name of rank to project reads to
+    :param tree: phylogenetic tree with reads mapped to nodes
+    :param rank: name of rank to project reads to
     """
     tree.convert_to_num_reads()
     root = tree.root
     if root:
-        project_dfs_up(root, ranks[rank_name])
-        project_dfs_down(root, ranks[rank_name])
+        project_dfs_up(root, rank, {})
+        project_dfs_down(root, rank)
 
 
-def project_dfs_up(node: PhyloNode, rank: int):
+def project_dfs_up(node: PhyloNode, rank: str, push_up: Dict[int, bool]):
     """
     Push reads upwards until specified rank is hit.
     Then sum reads upwards to enable downward projection.
 
     :param node: current node in the phylogenetic tree
     :param rank: rank to project reads to
+    :param push_up: dictionary mapping whether to push up reads of a node (by tax_id)
     """
-    for child in node.children:
-        project_dfs_up(child, rank)
-    if node.parent:
-        node.parent.reads += node.reads
-    if node.rank == 'unspecified' or ranks[node.rank] > rank:
-        node.reads = 0
+    # check if leaf is specified rank
+    if not node.children:
+        push_up[node.tax_id] = not is_rank(node, rank)
+    # traveserse dfs if not a leaf
+    else:
+        for child in node.children:
+            project_dfs_up(child, rank, push_up)
+    # if not root
+    parent = node.parent
+    if parent:
+        # propagate reads upwards
+        parent.reads += node.reads
+        # check if parent be deleting reads
+        # once rank is met, stop deleting reads
+        if parent.tax_id in push_up:
+            push_up[parent.tax_id] = push_up[node.tax_id] and push_up[parent.tax_id]
+        else:
+            push_up[parent.tax_id] = push_up[node.tax_id] and not is_rank(parent, rank)
+        # if node should delete reads, delete them
+        if push_up[node.tax_id]:
+            node.reads = 0
 
 
-def project_dfs_down(node: PhyloNode, rank: int):
+def project_dfs_down(node: PhyloNode, rank: str):
     """
+    Push reads downwards until specified rank is hit.
+    Distribute reads by shares of child reads.
 
     :param node: current node in the phylogenetic tree
     :param rank: rank to project reads to
     """
-    if node.rank == 'unspecified' or ranks[node.rank] < rank:
-        total_child_reads = sum(child.reads for child in node.children)
-        for child in node.children:
-            if total_child_reads > 0:
-                share = child.reads / total_child_reads
-                child.reads = share * node.reads
-            project_dfs_down(child, rank)
+    # gather amount of reads in children
+    total_child_reads = sum(child.reads for child in node.children)
+    # distribute node reads by shares of child reads
+    # and traverse dfs
+    for child in [child for child in node.children if child.reads > 0]:
+        share = child.reads / total_child_reads
+        child.reads = ceil(share * node.reads)
+        project_dfs_down(child, rank)
+    # delete nodes if above specified rank
+    if not is_rank(node, rank):
         node.reads = 0
+
+
+def is_rank(node: PhyloNode, rank: str):
+    """
+
+    :param node: node in phylogenetic tree
+    :param rank: rank to compare to
+    :return: if node rank matches rank
+    """
+    return node.rank != 'unspecified' and node.rank == rank

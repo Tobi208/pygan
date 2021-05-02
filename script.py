@@ -25,20 +25,6 @@ def msf_only_major():
         out_file='lca_analysis.txt')
 
 
-def project():
-    print('starting lca analysis')
-    lca_start = time()
-    tree = parse_tree('resources/ncbi.tre', 'resources/ncbi.map')
-    id2address, address2id = compute_lca_addresses(tree)
-    reads, read_ids =\
-        parse_blast_filter('resources/Alice01-1mio-Jan-2021.txt', 0.1, {'qseqid': 0, 'sseqid': 1, 'bitscore': 2})
-    mapped_reads = map_accessions(reads, 'resources/megan-map-Jan2021.db', 10000, 'Taxonomy')
-    map_lcas(tree, id2address, address2id, mapped_reads, read_ids, False)
-    project_reads_to_rank(tree, 'genus')
-    write_results(tree, 'lca_analysis.txt')
-    print('completed lca analysis in ' + timer(lca_start))
-
-
 def with_score():
     tre_file = 'resources/ncbi.tre'
     map_file = 'resources/ncbi.map'
@@ -75,8 +61,7 @@ def with_score():
     # reads_fws = load_from_bin('mapped_reads_from_ws.bin')
 
 
-def pickler():
-
+def project():
     tre_file = 'resources/ncbi.tre'
     map_file = 'resources/ncbi.map'
     megan_map_file = 'resources/megan-map-Jan2021.db'
@@ -90,16 +75,22 @@ def pickler():
     only_major = False
     out_file = 'lca_analysis.txt'
 
-    reads_ws, read_ids_ws = parse_blast_with_score(blast_source, blast_map)
-    reads, read_ids = parse_blast_filter(blast_source, 0.1, blast_map)
+    # mapped_reads = load_from_bin('mapped_reads.bin')
+    # read_ids = load_from_bin('read_ids.bin')
+    # tree = load_from_bin('tree.bin')
+    # id2address, address2id = compute_lca_addresses(tree)
+    # map_lcas(tree, id2address, address2id, mapped_reads, read_ids, ignore_ancestors)
+    tree = load_from_bin('tree_lca.bin')
 
-    save_to_bin(reads_ws, 'reads_ws.bin')
-    reads_ws_bin = load_from_bin('reads_ws.bin')
-    reads_from_ws_bin = filter_reads_by_top_score(reads_ws_bin, 0.1)
+    project_reads_to_rank(tree, 'genus')
+    # apply_min_sup_filter(tree, min_support, True)
 
-    match = all([read_from_ws_bin == read for read_from_ws_bin, read in zip(reads_from_ws_bin, reads)])
-    print('reads and reads with scores from bin match: ' + str(match))
+    nodes = tree.nodes.values()
+
+    for node in nodes:
+        if node.reads > 0:
+            print(node.name, node.rank, node.reads)
 
 
 if __name__ == '__main__':
-    with_score()
+    project()
