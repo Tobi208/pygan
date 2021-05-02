@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 
 class PhyloTree:
@@ -11,6 +11,10 @@ class PhyloTree:
     def __init__(self):
         self.root: Optional[PhyloNode] = None
         self.nodes: Dict[int, PhyloNode] = {}
+
+    def convert_to_num_reads(self):
+        for node in self.nodes.values():
+            node.reads = len(node.reads)
 
 
 class PhyloNode:
@@ -25,6 +29,6 @@ class PhyloNode:
         self.tax_id: Optional[int] = None
         self.name: Optional[str] = None
         self.rank: Optional[str] = None
-        self.reads: List[str] = []
+        self.reads: Union[List[str], int] = []
         self.parent: Optional[PhyloNode] = None
         self.children: List[PhyloNode] = []

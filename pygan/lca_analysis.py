@@ -6,12 +6,12 @@ from pygan.tree.map_parser import map_names
 from pygan.blast.blast_parser import parse_filter
 from pygan.database.megan_map import get_accessions2taxonids
 from pygan.algorithms.lca import compute_addresses, get_common_prefix
-from pygan.algorithms.min_sup_filter import apply
+from pygan.algorithms.min_sup_filter import apply, project_to_rank
 
 
 def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
         blast_map: Dict[str, int], top_score_percent: float, db_segment_size: int, db_key: str,
-        ignore_ancestors: bool, min_support: int, out_file: str):
+        ignore_ancestors: bool, min_support: int, only_major: bool, out_file: str):
     """
     Conducts an LCA analysis
 
@@ -30,6 +30,7 @@ def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     :param db_key: specific key to map accessions to (Taxonomy for NCBI, gtdb for GTDB)
     :param ignore_ancestors: flag whether to ignore ancestors in the LCA algorithm
     :param min_support: limit for the minimum support filter algorithm
+    :param only_major: only major ranks are allowed to retain reads
     :param out_file: path to output file of results
     """
 
@@ -40,7 +41,7 @@ def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     reads, read_ids = parse_blast_filter(blast_file, top_score_percent, blast_map)
     mapped_reads = map_accessions(reads, megan_map_file, db_segment_size, db_key)
     map_lcas(tree, id2address, address2id, mapped_reads, read_ids, ignore_ancestors)
-    apply_min_sup_filter(tree, min_support)
+    apply_min_sup_filter(tree, min_support, only_major)
     write_results(tree, out_file)
     print('completed lca analysis in ' + timer(lca_start))
 
@@ -140,16 +141,23 @@ def map_lcas(tree: PhyloTree, id2address: Dict, address2id: Dict,
     print('computed LCAs in ' + timer(t))
 
 
-def apply_min_sup_filter(tree: PhyloTree, min_support: int):
+def apply_min_sup_filter(tree: PhyloTree, min_support: int, only_major: bool):
     """
     Applies the minimum support filter to a phylogenetic tree
 
     :param tree: phylogenetic tree
     :param min_support: minimum support limit nodes are required to satisfy
+    :param only_major: only major ranks are allowed to retain reads
     """
     t = time()
-    apply(tree, min_support)
+    apply(tree, min_support, only_major)
     print('applied min support filter in ' + timer(t))
+
+
+def project_reads_to_rank(tree: PhyloTree, rank: str):
+    t = time()
+    project_to_rank(tree, rank)
+    print('projected reads to rank in ' + timer(t))
 
 
 def write_results(tree: PhyloTree, out_file: str):
@@ -160,7 +168,8 @@ def write_results(tree: PhyloTree, out_file: str):
     :param out_file: path to output file
     """
     t = time()
-    result = '\n'.join([node.name + '\t' + str(len(node.reads)) for node in tree.nodes.values() if node.reads])
+    result = '\n'.join([node.name + '\t' + str(len(node.reads) if type(node.reads == list) else node.reads)
+                        for node in tree.nodes.values() if node.reads])
     with open(out_file, 'w') as f:
         f.write(result)
     print('exported result in: ' + timer(t))
