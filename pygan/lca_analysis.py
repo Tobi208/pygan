@@ -12,7 +12,8 @@ from pygan.algorithms.min_sup_filter import apply, project_to_rank
 
 def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
         blast_map: Dict[str, int], top_score_percent: float, db_segment_size: int, db_key: str,
-        ignore_ancestors: bool, min_support: int, only_major: bool, out_file: str):
+        ignore_ancestors: bool, min_support: int, only_major: bool, out_file: str,
+        prefix_rank: bool, show_path: bool, list_reads: bool):
     """
     Conducts an LCA analysis
 
@@ -33,6 +34,9 @@ def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     :param min_support: limit for the minimum support filter algorithm
     :param only_major: only major ranks are allowed to retain reads
     :param out_file: path to output file of results
+    :param prefix_rank: add an abbreviation of the rank to the name
+    :param show_path: show paths from root to nodes
+    :param list_reads: display read ids mapped to nodes (else display number of reads)
     """
 
     print('starting lca analysis')
@@ -43,7 +47,7 @@ def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     mapped_reads = map_accessions(reads, megan_map_file, db_segment_size, db_key)
     map_lcas(tree, id2address, address2id, mapped_reads, read_ids, ignore_ancestors)
     apply_min_sup_filter(tree, min_support, only_major)
-    write_results(tree, out_file)
+    write_results(tree, out_file, prefix_rank, show_path, list_reads)
     print('completed lca analysis in ' + timer(lca_start))
 
 
@@ -218,22 +222,26 @@ def project_reads_to_rank(tree: PhyloTree, rank: str):
     print('projected reads to rank in ' + timer(t))
 
 
-def write_results(tree: PhyloTree, out_file: str):
+def write_results(tree: PhyloTree, out_file: str, prefix_rank: bool, show_path: bool, list_reads: bool):
     """
     Writes the results of the lca analysis to a file
 
     :param tree: phylogenetic tree
     :param out_file: path to output file
+    :param prefix_rank: add an abbreviation of the rank to the name
+    :param show_path: show paths from root to nodes
+    :param list_reads: display read ids mapped to nodes (else display number of reads)
     """
     t = time()
-    if type(tree.root.reads) == list:
-        result = '\n'.join([node.name + '\t' + str(len(node.reads))
-                            for node in tree.nodes.values() if node.reads])
-    else:
-        result = '\n'.join([node.name + '\t' + str(node.reads)
-                            for node in tree.nodes.values() if node.reads])
+    if prefix_rank:
+        tree.add_rank_abbrev_to_name()
+    if show_path:
+        tree.generate_paths()
+    if not list_reads:
+        tree.convert_to_num_reads()
+    result = [node.to_string(show_path, list_reads) for node in tree.nodes.values() if node.reads]
     with open(out_file, 'w') as f:
-        f.write(result)
+        f.writelines(result)
     print('exported result in ' + timer(t))
 
 

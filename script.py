@@ -10,7 +10,10 @@ def run_full_lca():
         top_score_percent=0.1,
         db_segment_size=10000, db_key='Taxonomy',
         ignore_ancestors=False, min_support=100, only_major=False,
-        out_file='lca_analysis.txt')
+        out_file='lca_analysis.txt',
+        prefix_rank=True,
+        show_path=False,
+        list_reads=False)
 
 
 def msf_only_major():
@@ -22,7 +25,10 @@ def msf_only_major():
         top_score_percent=0.1,
         db_segment_size=10000, db_key='Taxonomy',
         ignore_ancestors=False, min_support=100, only_major=True,
-        out_file='lca_analysis.txt')
+        out_file='lca_analysis.txt',
+        prefix_rank=True,
+        show_path=False,
+        list_reads=False)
 
 
 def with_score():
@@ -38,6 +44,9 @@ def with_score():
     min_support = 100
     only_major = False
     out_file = 'lca_analysis.txt'
+    prefix_rank = True
+    show_path = False
+    list_reads = False
 
     # reads_ws, read_ids_ws = parse_blast_with_score(blast_file, blast_map)
     # reads_from_ws = filter_reads_by_top_score(reads_ws, 0.1)
@@ -71,26 +80,30 @@ def project():
     db_segment_size = 10000
     db_key = 'Taxonomy'
     ignore_ancestors = False
-    min_support = 100
+    min_support = 200
     only_major = False
     out_file = 'lca_analysis.txt'
+    prefix_rank = False
+    show_path = False
+    list_reads = True
 
     # mapped_reads = load_from_bin('mapped_reads.bin')
     # read_ids = load_from_bin('read_ids.bin')
     # tree = load_from_bin('tree.bin')
+    # tree = parse_tree(tre_file, map_file)
     # id2address, address2id = compute_lca_addresses(tree)
     # map_lcas(tree, id2address, address2id, mapped_reads, read_ids, ignore_ancestors)
     tree = load_from_bin('tree_lca.bin')
 
-    project_reads_to_rank(tree, 'genus')
-    # apply_min_sup_filter(tree, min_support, True)
+    # project_reads_to_rank(tree, 'genus')
+    apply_min_sup_filter(tree, min_support, only_major)
 
     # nodes = tree.nodes.values()
     # for node in nodes:
     #     if node.reads > 0:
     #         print(node.name, node.rank, node.reads)
 
-    write_results(tree, out_file)
+    write_results(tree, out_file, prefix_rank, show_path, list_reads)
 
 
 if __name__ == '__main__':
