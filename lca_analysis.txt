@@ -1,0 +1,222 @@
+s__Parcubacteria group bacterium ADurb.Bin216	158
+s__uncultured bacterium	221
+s__Bacteroides caccae	490
+s__Bacteroides cellulosilyticus	197
+s__Bacteroides fragilis	390
+s__Bacteroides ovatus	546
+s__Bacteroides stercoris	346
+s__Bacteroides thetaiotaomicron	471
+s__Bacteroides uniformis	309
+s__Bacteroides xylanisolvens	213
+s__Bacteroides coprocola CAG:162	1243
+s__Bacteroides sp. CAG:1076	113
+s__Bacteroides sp. CAG:144	7131
+s__Bacteroides sp. CAG:443	252
+environmental samples <CFB group bacteria,genus Bacteroides>	721
+unclassified Bacteroides	578
+g__Bacteroides	44585
+f__Bacteroidaceae	698
+Bacteroides coprocola DSM 17136	565
+s__Phocaeicola coprocola	1361
+s__Phocaeicola dorei	215
+s__Phocaeicola plebeius	297
+s__Phocaeicola vulgatus	689
+g__Phocaeicola	573
+s__Barnesiella intestinihominis	1250
+g__Barnesiella	275
+s__Coprobacter secundus	133
+g__Coprobacter	106
+s__Butyricimonas virosa	574
+g__Butyricimonas	617
+s__Odoribacter splanchnicus	403
+g__Odoribacter	1549
+f__Odoribacteraceae	3255
+Paraprevotella clara YIT 11840	142
+s__Paraprevotella clara	1168
+s__Paraprevotella xylaniphila	135
+g__Paraprevotella	6610
+g__Prevotella	362
+f__Prevotellaceae	272
+s__Alistipes communis	1306
+s__Alistipes dispar	846
+s__Alistipes finegoldii	1093
+s__Alistipes ihumii	838
+s__Alistipes indistinctus	292
+s__Alistipes inops	163
+s__Alistipes megaguti	319
+s__Alistipes onderdonkii	146
+Alistipes putredinis DSM 17216	736
+s__Alistipes putredinis	1465
+s__Alistipes senegalensis	673
+s__Alistipes shahii	490
+s__Alistipes putredinis CAG:67	963
+s__Alistipes sp. CAG:268	42671
+s__Alistipes sp. CAG:53	129
+environmental samples <CFB group bacteria,genus Alistipes>	173
+s__Alistipes sp.	115
+s__Alistipes sp. An116	433
+s__Alistipes sp. An31A	231
+s__Alistipes sp. An54	300
+s__Alistipes sp. An66	938
+s__Alistipes sp. CHKCI003	116
+s__Alistipes sp. D31t1_170403_E11	285
+s__Alistipes sp. Z76	140
+unclassified Alistipes	2076
+g__Alistipes	114219
+f__Rikenellaceae	940
+s__Parabacteroides distasonis	116
+Parabacteroides merdae ATCC 43184	176
+s__Parabacteroides merdae	325
+unclassified Parabacteroides	108
+g__Parabacteroides	8314
+unclassified Bacteroidales	126
+o__Bacteroidales	144452
+c__Bacteroidia	2132
+s__Flavobacteriales bacterium	567
+p__Bacteroidetes	11151
+Bacteroidetes/Chlorobi group	466
+FCB group	398
+s__Oxalobacter formigenes	407
+s__Sutterella wadsworthensis	335
+g__Sutterella	1636
+o__Burkholderiales	270
+g__Desulfovibrio	283
+f__Desulfovibrionaceae	109
+delta/epsilon subdivisions	101
+o__Pseudomonadales	168
+c__Gammaproteobacteria	247
+p__Proteobacteria	706
+s__Victivallales bacterium CCUG 44730	1251
+s__Victivallis vadensis	845
+g__Victivallis	116
+o__Victivallales	388
+unclassified Lentisphaerae	159
+p__Lentisphaerae	2298
+unclassified Verrucomicrobia	761
+s__Akkermansia muciniphila	447
+g__Akkermansia	1658
+p__Verrucomicrobia	342
+PVC group	213
+s__Bifidobacterium adolescentis	131
+s__Bifidobacterium longum	105
+g__Bifidobacterium	958
+c__Actinobacteria	164
+unclassified Olsenella	120
+g__Olsenella	194
+g__Collinsella	1302
+o__Coriobacteriales	208
+s__Coriobacteriia bacterium	149
+c__Coriobacteriia	546
+s__Staphylococcus sp. CAG:324	763
+o__Bacillales	139
+o__Lactobacillales	151
+s__Candidatus Borkfalkia ceftriaxoniphila	363
+s__Candidatus Avimonas caecicola	122
+g__Candidatus Avimonas	933
+s__Candidatus Flemingibacterium merdigallinarum	115
+s__Candidatus Gallimonas faecium	240
+g__Candidatus Gallimonas	402
+s__Candidatus Geddesella stercoravicola	132
+Clostridia incertae sedis	724
+g__Butyricicoccus	148
+s__Clostridium sp. CAG:138	136
+s__Clostridium sp. CAG:269	295
+s__Clostridium sp. CAG:302	1421
+s__Clostridium sp. CAG:433	101
+s__Clostridium sp. CAG:440	901
+s__Clostridium sp. CAG:710	135
+s__Clostridium sp. CAG:798	1770
+s__uncultured Clostridium sp.	141
+environmental samples <firmicutes,genus Clostridium>	1459
+unclassified Clostridium	650
+g__Clostridium	3883
+f__Clostridiaceae	163
+g__Intestinimonas	176
+Clostridiales incertae sedis	246
+s__Eubacterium siraeum CAG:80	105
+s__Eubacterium sp. CAG:115	176
+s__Eubacterium sp. CAG:38	289
+environmental samples <firmicutes,genus Eubacterium>	241
+s__Eubacterium ventriosum	397
+unclassified Eubacterium	123
+g__Eubacterium	306
+g__Blautia	257
+s__Coprococcus sp. AF38-1	144
+g__Coprococcus	826
+g__Dorea	271
+g__Mediterraneibacter	112
+s__Roseburia hominis	102
+s__Roseburia intestinalis	105
+s__Roseburia inulinivorans	124
+g__Roseburia	2096
+s__[Eubacterium] rectale	384
+f__Lachnospiraceae	2407
+s__Dysosmobacter sp. BX15	233
+s__Oscillibacter sp. CAG:155	142
+s__Oscillibacter sp. CAG:241	162
+s__Oscillibacter sp.	146
+unclassified Oscillibacter	324
+g__Oscillibacter	573
+f__Oscillospiraceae	1251
+s__Clostridioides difficile	107
+s__Anaerotruncus sp. CAG:528	4477
+g__Anaerotruncus	129
+s__Faecalibacterium sp. CAG:74	775
+Faecalibacterium cf. prausnitzii KLE1255	157
+Faecalibacterium prausnitzii M21/2	129
+s__Faecalibacterium prausnitzii	2476
+s__Faecalibacterium sp. CAG:74_58_120	776
+unclassified Faecalibacterium	178
+g__Faecalibacterium	20337
+unclassified Flavonifractor	167
+g__Flavonifractor	143
+s__Gemmiger formicilis	298
+unclassified Pseudoflavonifractor	143
+[Eubacterium] siraeum DSM 15702	177
+[Eubacterium] siraeum V10Sc8a	132
+s__[Eubacterium] siraeum	280
+s__Ruminococcus sp. CAG:177	376
+environmental samples <firmicutes,genus Ruminococcus>	137
+s__Ruminococcus sp. NSJ-71	105
+unclassified Ruminococcus	318
+g__Ruminococcus	1775
+s__Subdoligranulum sp. CAG:314	1602
+s__Subdoligranulum sp.	323
+s__Subdoligranulum sp. APC924/74	6176
+unclassified Subdoligranulum	292
+g__Subdoligranulum	4007
+s__Ruminococcaceae bacterium	393
+s__Ruminococcaceae bacterium TF06-43	296
+unclassified Ruminococcaceae	264
+f__Ruminococcaceae	4776
+s__Clostridiales bacterium	3214
+s__Clostridiales bacterium 52_15	145
+unclassified Clostridiales	360
+o__Clostridiales	43771
+s__Clostridia bacterium	731
+c__Clostridia	4099
+s__Firmicutes bacterium CAG:103	408
+s__Firmicutes bacterium CAG:110	197
+s__Firmicutes bacterium CAG:124	7602
+s__Firmicutes bacterium CAG:129	547
+s__Firmicutes bacterium CAG:170	621
+s__Firmicutes bacterium CAG:176	2874
+environmental samples <firmicutes,phylum Firmicutes>	1298
+f__Erysipelotrichaceae	385
+g__Acidaminococcus	1068
+unclassified Phascolarctobacterium	226
+g__Dialister	237
+c__Negativicutes	207
+s__Firmicutes bacterium	367
+unclassified Firmicutes sensu stricto	402
+p__Firmicutes	33941
+Terrabacteria group	5059
+Bacteria	101047
+o__Methanomassiliicoccales	432
+p__Euryarchaeota	407
+cellular organisms	5026
+s__crAssphage cr127_1	258
+s__crAssphage cr115_1	403
+UAG-readthrough crAss clade	710
+crAss-like viruses	492
+NCBI	35314
