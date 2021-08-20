@@ -1,6 +1,6 @@
 # Python Metagenome Analzyer (PYGAN)
 
-Requires Python 3.9 and a [MEGAN Map](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) to perform an LCA analysis on metagenomic sequences from alignment data.
+Requires Python 3.9 and a [MEGAN Map](https://software-ab.informatik.uni-tuebingen.de/download/megan6/welcome.html) to perform an LCA analysis on metagenomic sequences from alignment data. Refer to _LCA analysis of metagenomic sequences in Python_ or read the doc strings for further information.
 
 ## Run
 
