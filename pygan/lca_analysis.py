@@ -154,13 +154,16 @@ def map_accessions(reads: List[List[str]], megan_map_file: str, db_segment_size:
     """
     t = time()
     mapped_reads = []
-    # divide reads into chunks
+    # compute indices for segmentation
     segments = [*range(0, len(reads), db_segment_size), len(reads)]
     for i in range(1, len(segments)):
-        # group
+        # group reads into chunks
         grouped_reads = reads[segments[i - 1]:segments[i]]
+        # collect all accessions from a chunk of reads
         flattened_reads = [acc for read in grouped_reads for acc in read]
+        # map accessions to taxons
         acc2id = get_accessions2taxonids(megan_map_file, flattened_reads, db_key)
+        # dechunk reads again
         for read in grouped_reads:
             mapped_reads.append([acc2id[acc] for acc in read if acc in acc2id])
     print('mapped #reads: ' + str(len(reads)) + ' in ' + timer(t))
@@ -181,11 +184,16 @@ def map_accessions_with_scores(reads_ws: List[List[Tuple[str, float]]],
     """
     t = time()
     mapped_reads_ws = []
+    # compute indices for segmentation
     segments = [*range(0, len(reads_ws), db_segment_size), len(reads_ws)]
     for i in range(1, len(segments)):
+        # group reads into chunks
         grouped_reads_ws = reads_ws[segments[i - 1]:segments[i]]
+        # collect all accessions from a chunk of reads
         flattened_reads = [acc for read_ws in grouped_reads_ws for acc, _ in read_ws]
+        # map accessions to taxons
         acc2id = get_accessions2taxonids(megan_map_file, flattened_reads, db_key)
+        # dechunk reads again
         for read_ws in grouped_reads_ws:
             mapped_reads_ws.append([(acc2id[acc], score) for acc, score in read_ws if acc in acc2id])
     print('mapped #reads: ' + str(len(reads_ws)) + ' in ' + timer(t))
@@ -206,11 +214,14 @@ def map_lcas(tree: PhyloTree, id2address: Dict, address2id: Dict,
     """
     t = time()
     nodes = tree.nodes
+    # map each read to a taxon
     for i, read in enumerate(reads):
+        # by computing the common prefix on its mapped accessions
         common_prefix = get_common_prefix([
             id2address[taxonid] for taxonid in read
             if taxonid in id2address
         ], ignore_ancestors)
+        # map read
         nodes[address2id[common_prefix]].reads.append(read_ids[i])
     print('computed LCAs in ' + timer(t))
 
