@@ -7,32 +7,40 @@ from pygan.tree.map_parser import map_names
 from pygan.blast.blast_parser import parse_filter, parse_with_score, filter_by_top_score
 from pygan.database.megan_map import get_accessions2taxonids
 from pygan.algorithms.lca import compute_addresses, get_common_prefix
-from pygan.algorithms.min_sup_filter import apply, project_to_rank
+from pygan.algorithms.min_sup_filter import apply
+from pygan.algorithms.projection import project_proportional, project_accession, project_accession_proportional
 
 
 def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
         blast_map: Dict[str, int], top_score_percent: float, db_segment_size: int, db_key: str,
-        ignore_ancestors: bool, min_support: int, only_major: bool, out_file: str,
-        prefix_rank: bool, show_path: bool, list_reads: bool):
+        ignore_ancestors: bool, min_support: int, only_major: bool, exclude: List[str],
+        project_mode: str, project_rank: str, cluster_degree: int,
+        out_file: str, prefix_rank: bool, show_path: bool, list_reads: bool):
     """
-    Conducts an LCA analysis
+    Performs an LCA analysis
 
     LCA analysis takes user input from a blast file,
     maps its accessions to taxon ids via the Megan Map Database,
     determines the Lowest Common Ancestor for each read and
     maps the number of reads to a phylogenetic tree.
+    Read projection can be applied afterward.
+    Print the resulting taxonomy to a text file.
 
-    :param tre_file: path to file containing phyolgenetic tree
+    :param tre_file: path to file containing phylogenetic tree
     :param map_file: path to file containing mapping of taxonomy id to scientific name and rank
     :param megan_map_file: path to file containing megan_map.db
     :param blast_file: path to file containing blast data
     :param blast_map: contains a mapping of which column qseqid, sseqid and bitscore are in
     :param top_score_percent: percentage in [0, 1] to filter accessions by
-    :param db_segment_size: number of reads whoose accessions are to be mapped via the database in chunks
+    :param db_segment_size: number of reads whose accessions are to be mapped via the database in chunks
     :param db_key: specific key to map accessions to (Taxonomy for NCBI, gtdb for GTDB)
     :param ignore_ancestors: flag whether to ignore ancestors in the LCA algorithm
     :param min_support: limit for the minimum support filter algorithm
     :param only_major: only major ranks are allowed to retain reads
+    :param exclude: ranks that the minimum support filter should not be applied to
+    :param project_mode: method of read projection to a target rank ('accession', 'proportional', 'mixed', '')
+    :param project_rank: target rank to project reads to
+    :param cluster_degree: degree to cluster hits by during the accession-based projection
     :param out_file: path to output file of results
     :param prefix_rank: add an abbreviation of the rank to the name
     :param show_path: show paths from root to nodes
@@ -46,17 +54,18 @@ def run(tre_file: str, map_file: str, megan_map_file: str, blast_file: str,
     reads, read_ids = parse_blast_filter(blast_file, top_score_percent, blast_map)
     mapped_reads = map_accessions(reads, megan_map_file, db_segment_size, db_key)
     map_lcas(tree, id2address, address2id, mapped_reads, read_ids, ignore_ancestors)
-    apply_min_sup_filter(tree, min_support, only_major)
+    project_reads_to_rank(project_mode, tree, project_rank, mapped_reads, read_ids, cluster_degree)
+    apply_min_sup_filter(tree, min_support, exclude, only_major)
     write_results(tree, out_file, prefix_rank, show_path, list_reads)
     print('completed lca analysis in ' + timer(lca_start))
 
 
 def parse_tree(tre_file: str, map_file: str) -> PhyloTree:
     """
-    Parse a pyhlogenetic tree from a newick format file
+    Parse a phylogenetic tree from a newick format file
     and map names and ranks from a map file to it
 
-    :param tre_file: path to file containing phyolgenetic tree
+    :param tre_file: path to file containing phylogenetic tree
     :param map_file: path to file containing mapping of taxonomy id to scientific name and rank
     :return: phylogenetic tree with taxonomy ids, scientific names and ranks
     """
@@ -65,6 +74,7 @@ def parse_tree(tre_file: str, map_file: str) -> PhyloTree:
     print('parsed tree in ' + timer(t))
     t = time()
     map_names(map_file, tree)
+    tree.completed_mapping()
     print('mapped names and ranks in ' + timer(t))
     return tree
 
@@ -100,7 +110,7 @@ def parse_blast_filter(blast_file: str, top_score_percent: float, blast_map: Dic
     return reads_n_read_ids
 
 
-def parse_blast_with_score(blast_file: str, blast_map: Dict[str, int])\
+def parse_blast_with_score(blast_file: str, blast_map: Dict[str, int]) \
         -> Tuple[List[List[Tuple[str, float]]], List[str]]:
     """
     Parse a blast tab file with scores
@@ -138,14 +148,16 @@ def map_accessions(reads: List[List[str]], megan_map_file: str, db_segment_size:
 
     :param reads: list of accessions per read
     :param megan_map_file: path to file containing megan_map.db
-    :param db_segment_size: number of reads whoose accessions are to be mapped via the database in chunks
+    :param db_segment_size: number of reads whose accessions are to be mapped via the database in chunks
     :param db_key: specific key to map accessions to (Taxonomy for NCBI, gtdb for GTDB)
     :return: list of taxonomy ids per read
     """
     t = time()
     mapped_reads = []
+    # divide reads into chunks
     segments = [*range(0, len(reads), db_segment_size), len(reads)]
     for i in range(1, len(segments)):
+        # group
         grouped_reads = reads[segments[i - 1]:segments[i]]
         flattened_reads = [acc for read in grouped_reads for acc in read]
         acc2id = get_accessions2taxonids(megan_map_file, flattened_reads, db_key)
@@ -163,7 +175,7 @@ def map_accessions_with_scores(reads_ws: List[List[Tuple[str, float]]],
 
     :param reads_ws: list of accessions with scores per read
     :param megan_map_file: path to file containing megan_map.db
-    :param db_segment_size: number of reads whoose accessions are to be mapped via the database in chunks
+    :param db_segment_size: number of reads whose accessions are to be mapped via the database in chunks
     :param db_key: specific key to map accessions to (Taxonomy for NCBI, gtdb for GTDB)
     :return: list of taxonomy ids with scores per read
     """
@@ -203,22 +215,45 @@ def map_lcas(tree: PhyloTree, id2address: Dict, address2id: Dict,
     print('computed LCAs in ' + timer(t))
 
 
-def apply_min_sup_filter(tree: PhyloTree, min_support: int, only_major: bool):
+def apply_min_sup_filter(tree: PhyloTree, min_support: int, exclude: List[str], only_major: bool):
     """
     Applies the minimum support filter to a phylogenetic tree
 
     :param tree: phylogenetic tree
     :param min_support: minimum support limit nodes are required to satisfy
     :param only_major: only major ranks are allowed to retain reads
+    :param exclude: ranks that the filter should not be applied to
     """
     t = time()
-    apply(tree, min_support, only_major)
+    if min_support < 2 and not only_major:
+        return
+    apply(tree, min_support, exclude, only_major)
     print('applied min support filter in ' + timer(t))
 
 
-def project_reads_to_rank(tree: PhyloTree, rank: str):
+def project_reads_to_rank(mode: str, tree: PhyloTree, rank: str,
+                          mapped_reads: List[List[int]], read_ids: List[str], cluster_degree: int):
+    """
+    Attempt to project reads of nodes to only nodes with the target rank.
+    Reads mapped below the target rank are pushed upwards.
+    For reads mapped above the target rank, multiple heuristics are available.
+
+    :param mode: projection mode: proportional, accession or mixed
+    :param tree: phylo tree
+    :param rank: target rank for projection
+    :param mapped_reads: list of potential taxons for each read
+    :param read_ids: list of read ids
+    :param cluster_degree: degree of clustering of low level taxons
+    """
     t = time()
-    project_to_rank(tree, rank)
+    if mode == 'proportional':
+        project_proportional(tree, rank)
+    elif mode == 'accession':
+        project_accession(tree, rank, mapped_reads, read_ids, cluster_degree)
+    elif mode == 'mixed':
+        project_accession_proportional(tree, rank, mapped_reads, read_ids, cluster_degree)
+    else:
+        return
     print('projected reads to rank in ' + timer(t))
 
 
@@ -233,13 +268,7 @@ def write_results(tree: PhyloTree, out_file: str, prefix_rank: bool, show_path: 
     :param list_reads: display read ids mapped to nodes (else display number of reads)
     """
     t = time()
-    if prefix_rank:
-        tree.add_rank_abbrev_to_name()
-    if show_path:
-        tree.generate_paths()
-    if not list_reads:
-        tree.convert_to_num_reads()
-    result = [node.to_string(show_path, list_reads) for node in tree.nodes.values() if node.reads]
+    result = [node.to_string(show_path, list_reads, prefix_rank) for node in tree.nodes.values() if node.reads]
     with open(out_file, 'w') as f:
         f.writelines(result)
     print('exported result in ' + timer(t))
