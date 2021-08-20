@@ -3,7 +3,7 @@ from pygan.tree.phylo_tree import PhyloTree, PhyloNode
 
 def get_phylo_tree(file: str) -> PhyloTree:
     """
-    Read a file containtng a newick tree in format (1,2,(3,4)5)6  and parse it to phylogenetic tree
+    Read a file containing a newick tree in format (1,2,(3,4)5)6  and parse it to phylogenetic tree
 
     :param file: file containing newick tree in format (1,2,(3,4)5)6
     :return: phylogenetic tree
@@ -24,7 +24,7 @@ def read(file: str) -> str:
 
 def parse(newick: str) -> PhyloTree:
     """
-    Parse a newick string to a phylogentic tree iteratively in O(n)
+    Parse a newick string to a phylogenetic tree iteratively in O(n)
     The newick tree is trusted to be in the format (1,2,(3,4)5)6
 
     May be extended to include depths of nodes
@@ -118,7 +118,7 @@ def to_newick(node: PhyloNode) -> str:
 
     Mainly for testing/debugging. Implementation is highly inefficient.
 
-    :param node: phylogentic tree node
+    :param node: phylogenetic tree node
     :return: newick tree in format (1,2,(3,4)5)6
     """
     if len(node.children) == 0:

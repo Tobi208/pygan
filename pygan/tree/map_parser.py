@@ -3,7 +3,7 @@ from pygan.tree.phylo_tree import PhyloTree
 
 
 # megan rank ids -> scientific names map
-ranks = {
+RANKS = {
     '0': 'unspecified',
     '1': 'kingdom',
     '2': 'phylum',
@@ -17,6 +17,10 @@ ranks = {
     '101': 'subspecies',
     '127': 'domain'
 }
+
+TAXON_KEY = 0
+NAME_KEY = 1
+RANK_KEY = 3
 
 
 def map_names(file: str, tree: PhyloTree):
@@ -48,17 +52,13 @@ def parse(lines: List[List[str]], tree: PhyloTree):
     :param tree: phylo tree to be filled with names and ranks
     """
     nodes = tree.nodes
-    taxon = 0
-    name = 1
-    rank = 3
-
     for line in lines:
-        taxon_id = int(line[taxon])
+        taxon_id = int(line[TAXON_KEY])
         if taxon_id in nodes:
             node = nodes[taxon_id]
-            node.name = line[name]
-            rank_id = line[rank]
-            if rank_id in ranks:
-                node.rank = ranks[rank_id]
+            node.name = line[NAME_KEY]
+            rank_id = line[RANK_KEY]
+            if rank_id in RANKS:
+                node.rank = RANKS[rank_id]
             else:
-                node.rank = ranks['0']
+                node.rank = RANKS['0']
